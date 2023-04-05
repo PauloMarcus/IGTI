@@ -1,6 +1,6 @@
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, makeStyles, Box, Button, Checkbox, FormControlLabel } from "@material-ui/core";
 import { useEffect, useState } from "react";
-import { getEventsEndpoint, IEvent } from "../../backend";
+import { getCalendarsEndpoint, getEventsEndpoint, ICalendar, IEvent } from "../../backend";
 import getToday from "../../components/getToday";
 
 const useStyles = makeStyles({
@@ -8,20 +8,25 @@ const useStyles = makeStyles({
         tableLayout: 'fixed',
         minHeight: '100%',
         "& td ~ td, & th ~ th": {
-            borderLeft: "1px solid gray"
+            borderLeft: "1px solid rgb(224,224,224)"
         },
         "& td": {
             verticalAlign: 'top',
             overflowX: 'hidden'
         },
     },
+    mutedDay: {},
+
     dayOfMonth: {
 
     },
     event: {
         display: 'block',
-        background: 'none',
         border: 'none',
+        borderRadius: 3,
+        paddingLeft: 6,
+        color: 'white',
+        fontWeight: 300,
         textAlign: 'left',
         cursor: 'pointer',
         whiteSpace: 'nowrap'
@@ -36,28 +41,41 @@ export default function Calendar() {
     const classes = useStyles()
     
     const [events, setEvents] = useState<IEvent[]>([])
-    const weeks = generateCalendar(getToday(), events)
+    const [calendars, setCalendars] = useState<ICalendar[]>([])
+    const [calendarsSelected, setCalendarsSelected] = useState<boolean[]>([])
+    const weeks = generateCalendar(getToday(), events, calendars, calendarsSelected)
     const firstDate = weeks[0][0].date
     const lastDate = weeks[weeks.length -1][6].date
 
     useEffect(() => {
-        getEventsEndpoint(firstDate, lastDate).then(setEvents)
+        Promise.all([getCalendarsEndpoint(), getEventsEndpoint(firstDate, lastDate)]).then(([calendars, events]) => {
+            setEvents(events)
+            setCalendarsSelected(calendars.map(() => true))
+            setCalendars(calendars)
+        })
     }, [firstDate, lastDate])
+
+    function toggleCalendar(i: number){
+        const newSelected = [...calendarsSelected]
+
+        newSelected[i] = !newSelected[i]
+        
+        setCalendarsSelected(newSelected)
+    }
+
 
 
     return <Box style={{ display: 'flex', height: '100%', alignItems: 'stretch' }}>
-        <Box style={{ borderRight: '1px solid gray', minWidth: '15%', padding: 16 }}>
+        <Box style={{ borderRight: '1px solid rgb(224,224,224)', minWidth: '15%', padding: 16 }}>
             <h2>Agenda em react</h2>
 
             <Button variant="contained" color="primary">Novo Evento</Button>
 
             <Box style={{}}>
                 <h3>Agendas</h3>
-
-                <FormControlLabel
-                    control={<Checkbox />} label={'Pessoal'} />
-                <FormControlLabel
-                    control={<Checkbox />} label={'Trabalho'} />
+                {calendars.map((calendar, i) => <FormControlLabel key={calendar.id} control={<Checkbox onChange={() => toggleCalendar(i)} checked={calendarsSelected[i]} style={{color: calendar.color}}/>} label={calendar.name} />)}
+               
+   
             </Box>
         </Box>
 
@@ -70,10 +88,15 @@ export default function Calendar() {
                 </TableHead>
                 <TableBody>
                     {weeks.map((week, index) => <TableRow key={index}>
-                        {week.map((cell, index) => <TableCell key={index} align="center">
-                            {cell.date}
-                            {cell.events.map((event) => <div className={classes.event}>{event.time || ''} {event.desc}</div>)}
-                            </TableCell>)}
+                        {week.map((cell, index) => <TableCell style={{ background: '' }} key={index} align="center">
+                            {cell.dayOfMonth}
+
+              
+
+                            {cell.events.map((event, i) => {
+                            const color = event.calendar?.color
+                            return <div className={classes.event} key={i} style={{background: color}}>{event.time || ''} {event.desc}</div>})}
+                        </TableCell>)}
                     </TableRow>)}
 
                 </TableBody>
@@ -82,14 +105,17 @@ export default function Calendar() {
     </Box>
 }
 
-
+type IEventWithCalendar = IEvent & {
+    calendar: ICalendar
+}
 
 interface ICalendarCell {
     date: string,
-    events: IEvent[]
+    dayOfMonth: number,
+    events: IEventWithCalendar[]
 }
 
-function generateCalendar(date: string, allEvents: IEvent[]): ICalendarCell[][] {
+function generateCalendar(date: string, allEvents: IEvent[], calendars: ICalendar[], calendarsSelected: boolean[]): ICalendarCell[][] {
 
     const weeks: ICalendarCell[][] = []
     const jsDate = new Date(date + "T12:00:00")
@@ -100,15 +126,28 @@ function generateCalendar(date: string, allEvents: IEvent[]): ICalendarCell[][] 
     const dayOfWeek = currentDay.getDay()
     currentDay.setDate(1 - dayOfWeek)
 
+    
     do {
         const week: ICalendarCell[] = []
         for(let i = 0; i < DAYS_OF_WEEK.length; i++){
             const day = currentDay.getDate().toString().padStart(2, "0")
             const month = currentDay.getMonth().toString().padStart(2, "0")
-
+            
             const isoDate = `${currentDay.getFullYear()}-${month}-${day}`
+            const events: IEventWithCalendar[] = []
 
-            week.push({date: isoDate, events: allEvents.filter(e => e.date === isoDate)})
+            for(const event of allEvents) {
+                if(event.date === isoDate) {
+                    const calIndex =  calendars.findIndex(cal => cal.id === event.calendarId)
+                    if(calendarsSelected[calIndex]){
+                        events.push({...event, calendar: calendars[calIndex]})
+                    }
+                    
+                }   
+            }
+
+          
+            week.push({dayOfMonth: currentDay.getDate(), date: isoDate, events: events})
             currentDay.setDate(currentDay.getDate() + 1)
         }
         weeks.push(week)
