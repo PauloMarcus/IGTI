@@ -9,10 +9,6 @@
       "id": 2,
       "name": "Trabalho",
       "color": "#7CB342"
-    },
-    {
-      "{date: 2023-04-05, desc: viagem,calendarId: 2}": "",
-      "id": 3
     }
   ],
   "events": [
@@ -81,26 +77,12 @@
     },
     {
       "date": "2023-04-04",
-      "desc": "teste",
-      "calendarId": 1,
-      "id": 11
-    },
-    {
-      "{date: 2023-04-05, desc: viagem,calendarId: 2}": "",
-      "id": 12
-    },
-    {
-      "Content-Type: application/json": "",
-      "id": 13
-    },
-    {
-      "name": "2023-04-04",
       "calendarId": 2,
       "desc": "viagem",
       "id": 14
     },
     {
-      "name": "2023-04-04",
+      "date": "2023-04-04",
       "calendarId": 1,
       "desc": "viagem",
       "id": 15
