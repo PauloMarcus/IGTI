@@ -13,7 +13,7 @@ function App() {
   <> 
       <Routes>
         <Route path='/calendar/:month' element={ <Calendar />}/>
-        <Route element={<Navigate to={`/calendar/${today}`} />}/>
+        <Route path='*' element={<Navigate to={`/calendar/${today}`} />}/>
         
       </Routes>
    
