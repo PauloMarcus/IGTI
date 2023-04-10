@@ -7,6 +7,7 @@ import CalendarTable from "./components/CalendarTable";
 import CalendarHeader from "./components/CalendarHeader";
 import generateCalendar from "./components/GenerateCalendar";
 import CalendarMenu from "./components/CalendarMenu";
+import CreateEventDialog from "../../components/Dialog/CreateEventDialog";
 
 
 export default function Calendar() {
@@ -16,7 +17,8 @@ export default function Calendar() {
     const [events, setEvents] = useState<IEvent[]>([])
     const [calendars, setCalendars] = useState<ICalendar[]>([])
     const [calendarsSelected, setCalendarsSelected] = useState<boolean[]>([])
-  
+    const [modalOpen, setModalOpen] = useState<boolean>(false)
+   
     const weeks = generateCalendar({date:month + '-01', allEvents: events, calendars: calendars, calendarsSelected: calendarsSelected })
     const firstDate = weeks[0][0].date
     const lastDate = weeks[weeks.length - 1][6].date
@@ -31,19 +33,17 @@ export default function Calendar() {
 
     function toggleCalendar(i: number) {
         const newSelected = [...calendarsSelected]
-
         newSelected[i] = !newSelected[i]
-
         setCalendarsSelected(newSelected)
     }
 
     return <Box style={{ display: 'flex', height: '100%', alignItems: 'stretch' }}>
-       <CalendarMenu calendars={calendars} toggleCalendar={toggleCalendar} calendarsSelected={calendarsSelected} />
+       <CalendarMenu calendars={calendars} onNewEvent={() => setModalOpen(true)} toggleCalendar={toggleCalendar} calendarsSelected={calendarsSelected} />
         <Box style={{ height: "100%" }}>
             <CalendarHeader month={month!} />
-
             <CalendarTable weeks={weeks}/>
         </Box>
+        <CreateEventDialog open={modalOpen} onClose={() => setModalOpen(false)}/>
     </Box>
 }
 

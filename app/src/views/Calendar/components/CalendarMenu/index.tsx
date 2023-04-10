@@ -1,21 +1,24 @@
 import { Box, Button, FormControlLabel, Checkbox } from "@material-ui/core";
 import { ICalendar } from "../../../../backend";
+import CreateEventDialog from "../../../../components/Dialog/CreateEventDialog";
+import React from "react";
 
 type Props = {
     calendars: ICalendar[],
     toggleCalendar: (i:number) => void,
-    calendarsSelected: boolean[]
+    calendarsSelected: boolean[],
+    onNewEvent: (open: boolean) => void
 }
 
 export default function CalendarMenu(props: Props) {
 
-    const { calendars, toggleCalendar, calendarsSelected } = props
+    const { calendars, toggleCalendar, calendarsSelected, onNewEvent } = props
 
     return (
         <Box style={{ borderRight: '1px solid rgb(224,224,224)', minWidth: '15%', padding: 16 }}>
             <h2>Agenda em react</h2>
 
-            <Button variant="contained" color="primary">Novo Evento</Button>
+            <Button variant="contained" color="primary" onClick={() => onNewEvent(true)}>Novo Evento</Button>
 
             <Box style={{}}>
                 <h3>Agendas</h3>
