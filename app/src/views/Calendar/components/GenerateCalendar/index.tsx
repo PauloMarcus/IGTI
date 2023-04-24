@@ -21,7 +21,7 @@ type Props = {
 export default function generateCalendar(props: Props): ICalendarCell[][] {
 
     const { date, allEvents, calendars, calendarsSelected} = props
-
+    console.log('asd')
     const weeks: ICalendarCell[][] = []
     const jsDate = new Date(date + "T12:00:00")
     const currentMonth = jsDate.getMonth()

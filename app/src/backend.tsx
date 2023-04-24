@@ -13,7 +13,7 @@ export interface IEditingEvent {
 }
 
 export interface IEvent extends IEditingEvent {
-  id: number;
+  id?: number;
 }
 
 export interface IUser {
@@ -34,6 +34,7 @@ export function getEventsEndpoint(from: string, to: string): Promise<IEvent[]> {
 }
 
 export function createEventEndpoint(event: IEditingEvent): Promise<IEvent> {
+    
   return fetch(`http://localhost:8080/events`, {
     credentials: "include",
     method: "POST",

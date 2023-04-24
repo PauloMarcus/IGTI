@@ -1,18 +1,21 @@
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core"
 import styles from "../styles"
 import { ICalendarCell } from "../GenerateCalendar"
+import { IEvent } from "../../../../backend"
+import React from "react"
 
 
 type Props= {
-    weeks: ICalendarCell[][]
+    weeks: ICalendarCell[][],
+    onOpenEvent: (event: IEvent) => void
 }
 
 const DAYS_OF_WEEK = ['DOM', "SEG", "TER", "QUA", "QUI", "SEX", "SAB"]
 
-export default function CalendarTable(props: Props) {
+export const CalendarTable = React.memo((props: Props) => {
     const classes = styles()
-
-    const { weeks } = props
+    console.log('calendarTable')
+    const { weeks, onOpenEvent } = props
 
     return (
         <TableContainer style={{ height: "90%" }}>
@@ -28,7 +31,7 @@ export default function CalendarTable(props: Props) {
                             {cell.dayOfMonth}
                             {cell.events.map((event, i) => {
                                 const color = event.calendar?.color
-                                return <div className={classes.event} key={i} style={{ background: color }}>{event.time || ''} {event.desc}</div>
+                                return <div className={classes.event} onClick={() => onOpenEvent(event)} key={i} style={{ background: color }}>{event.time || ''} {event.desc}</div>
                             })}
                         </TableCell>)}
                     </TableRow>)}
@@ -37,4 +40,4 @@ export default function CalendarTable(props: Props) {
             </Table>
         </TableContainer>
     )
-}
+})

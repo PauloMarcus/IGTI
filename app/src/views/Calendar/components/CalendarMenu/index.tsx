@@ -1,6 +1,5 @@
 import { Box, Button, FormControlLabel, Checkbox } from "@material-ui/core";
 import { ICalendar } from "../../../../backend";
-import CreateEventDialog from "../../../../components/Dialog/CreateEventDialog";
 import React from "react";
 
 type Props = {
@@ -10,8 +9,7 @@ type Props = {
     onNewEvent: (open: boolean) => void
 }
 
-export default function CalendarMenu(props: Props) {
-
+export const CalendarMenu = React.memo((props: Props) => {
     const { calendars, toggleCalendar, calendarsSelected, onNewEvent } = props
 
     return (
@@ -26,4 +24,4 @@ export default function CalendarMenu(props: Props) {
             </Box>
         </Box>
     )
-}
+})
